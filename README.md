@@ -1,0 +1,95 @@
+# 🏦 Bank UPI APP (Full-Stack Ledger & Fintech System)
+
+A production-grade, full-stack banking ecosystem inspired by Google Pay and modern fintech patterns. This repository integrates a robust **ACID-compliant Ledger Backend** with a high-performance **Mobile-First Frontend**.
+
+---
+
+## 🌟 Architecture Overview
+
+The system is designed with a **Headless Architecture**:
+- **Backend (Core):** Handles immutable financial records, double-entry bookkeeping, and UPI network simulation.
+- **Frontend (UI/UX):** A sleek, glassmorphism-inspired interface for P2P transfers, VPA management, and real-time balance tracking.
+
+---
+
+## 🚀 Key Features
+
+### 🛠️ Backend (Ledger Service)
+*   **Immutable Double-Entry Ledger:** All transactions are logged as strict `CREDIT` and `DEBIT` pairs.
+*   **ACID Transactions:** Powered by MongoDB Sessions (`startSession`) to guarantee data integrity during failures.
+*   **UPI Simulation:** Built-in **NPCI Matcher** to simulate VPA (Virtual Payment Address) routing and transaction flow.
+*   **Security:** JWT-based authentication with token blacklisting and bcrypt hashing.
+*   **Idempotency:** API level protection against duplicate payments using `idempotencyKey`.
+
+### 📱 Frontend (Next.js Application)
+*   **Premium Tech Stack:** Built with **Next.js 14**, **Tailwind CSS**, and **Framer Motion** for smooth micro-animations.
+*   **Mobile-First Design:** Optimized for the modern smartphone experience with an intuitive UI.
+*   **State Management:** Lightweight and reactive state handling using **Zustand**.
+*   **Real-time Interaction:** Dynamic balance aggregation and instant transaction feedback.
+
+---
+
+## 📂 Project Structure
+
+Repo URL: https://github.com/asm59-345/Backend-Ledger.git
+```text
+Backend-Ledger/
+├── backend-Ledger/ (Root)
+│   ├── src/
+│   │   ├── controllers/    # API Business Logic
+│   │   ├── models/         # MongoDB Schemas (Ledger, User, VPA)
+│   │   ├── services/       # NPCI Simulation, Email, Security
+│   │   ├── app.upi.js      # Main UPI Express Application
+│   │   └── server.upi.js   # Server Entry Point
+│   ├── .env                # Backend Configuration
+│   └── README.md           # This Documentation
+├── frontend/
+│   ├── src/
+│   │   ├── components/     # UI Components (Buttons, Modals, Cards)
+│   │   ├── app/            # Next.js App Router (Pages & Layouts)
+│   │   └── store/          # Zustand State Stores
+│   ├── tailwind.config.ts  # Design System Tokens
+│   └── package.json        # Frontend Dependencies
+└── sync_github.bat         # Automated Repo Sync Tool
+```
+
+---
+
+## ⚙️ Setup & Installation
+
+### 1. Prerequisites
+- **Node.js**: v18+
+- **MongoDB**: Replica Set recommended (for Transactions support)
+
+### 2. Backend Setup
+```bash
+cd backend-Ledger
+npm install
+# Configure your .env (see README.md in backend folder)
+npm run dev
+```
+
+### 3. Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+*The frontend will be available at `http://localhost:3001`.*
+
+---
+
+## 👨‍💻 Contributing & Development
+
+This system was built with a focus on **Financial Integrity** and **User Experience**. 
+
+### Deployment Sync
+To update this repository on GitHub with both backend and frontend changes, use the provided sync tool:
+```cmd
+.\sync_github.bat
+```
+
+---
+
+## 📄 License
+MIT License. Created for the next generation of Fintech developers.

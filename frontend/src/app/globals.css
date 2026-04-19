@@ -1,0 +1,199 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════
+   PayFlow — UPI Banking System
+   Premium Fintech Design System
+   ═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --color-primary: 79 70 229;
+    --color-primary-light: 129 140 248;
+    --color-success: 16 185 129;
+    --color-warning: 245 158 11;
+    --color-danger: 239 68 68;
+    --radius: 1rem;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-surface-50 text-surface-900 dark:bg-surface-950 dark:text-surface-50;
+    font-family: 'Inter', system-ui, sans-serif;
+    overscroll-behavior-y: contain;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-300 dark:bg-surface-700 rounded-full;
+  }
+}
+
+@layer components {
+  /* ─── Gradient Balance Card ─── */
+  .balance-card {
+    @apply relative overflow-hidden rounded-3xl p-6;
+    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #818CF8 100%);
+  }
+  .balance-card::before {
+    content: '';
+    @apply absolute inset-0 opacity-20;
+    background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 60%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 40%);
+  }
+
+  /* ─── Glass Card ─── */
+  .glass-card {
+    @apply rounded-2xl p-4;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .dark .glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* ─── Shimmer Loading ─── */
+  .skeleton {
+    @apply relative overflow-hidden rounded-xl;
+    background: linear-gradient(90deg, 
+      theme('colors.surface.200') 0%, 
+      theme('colors.surface.100') 40%, 
+      theme('colors.surface.200') 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
+  }
+  .dark .skeleton {
+    background: linear-gradient(90deg, 
+      theme('colors.surface.800') 0%, 
+      theme('colors.surface.700') 40%, 
+      theme('colors.surface.800') 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  /* ─── Transaction Status Accent ─── */
+  .tx-completed { @apply border-l-2 border-success-500; }
+  .tx-pending   { @apply border-l-2 border-warning-500; }
+  .tx-failed    { @apply border-l-2 border-danger-500; }
+
+  /* ─── Bottom Navigation ─── */
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 z-50;
+    @apply bg-white/80 dark:bg-surface-900/80;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(0,0,0,0.06);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .dark .bottom-nav {
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* ─── Pill Button ─── */
+  .btn-pill {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3;
+    @apply rounded-full font-semibold text-sm;
+    @apply transition-all duration-200 ease-out;
+    @apply active:scale-95;
+  }
+  .btn-pill-primary {
+    @apply btn-pill text-white;
+    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+  }
+  .btn-pill-primary:hover {
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.5);
+    transform: translateY(-1px);
+  }
+
+  /* ─── Input Field ─── */
+  .input-field {
+    @apply w-full px-4 py-3.5 rounded-2xl text-sm font-medium;
+    @apply bg-surface-100 dark:bg-surface-800;
+    @apply text-surface-900 dark:text-surface-50;
+    @apply placeholder:text-surface-400 dark:placeholder:text-surface-500;
+    @apply outline-none transition-all duration-200;
+    @apply focus:ring-2 focus:ring-primary-500/30 focus:bg-white dark:focus:bg-surface-700;
+  }
+
+  /* ─── Quick Action Button ─── */
+  .quick-action {
+    @apply flex flex-col items-center gap-2 p-4 rounded-2xl;
+    @apply bg-surface-100/80 dark:bg-surface-800/50;
+    @apply transition-all duration-200 active:scale-95;
+    @apply hover:bg-surface-200/80 dark:hover:bg-surface-700/50;
+  }
+  .quick-action-icon {
+    @apply w-12 h-12 rounded-2xl flex items-center justify-center;
+    @apply bg-primary-500/10 dark:bg-primary-500/20 text-primary-500;
+  }
+
+  /* ─── Toast ─── */
+  .toast {
+    @apply fixed top-4 right-4 left-4 z-[100] p-4 rounded-2xl;
+    @apply shadow-xl animate-slide-down;
+    @apply flex items-center gap-3;
+  }
+  .toast-success {
+    @apply toast bg-success-50 dark:bg-success-700/20 text-success-700 dark:text-success-500;
+  }
+  .toast-error {
+    @apply toast bg-danger-50 dark:bg-danger-700/20 text-danger-700 dark:text-danger-500;
+  }
+
+  /* ─── Success Check Animation ─── */
+  .success-check {
+    @apply w-24 h-24 rounded-full bg-success-500/10 flex items-center justify-center;
+  }
+  .success-check svg {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: check-draw 0.6s ease-out 0.3s forwards;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .rupee {
+    font-feature-settings: 'tnum' 1;
+    letter-spacing: -0.02em;
+  }
+  .safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5rem);
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .font-display {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+}
+

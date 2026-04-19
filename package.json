@@ -1,0 +1,25 @@
+{
+  "name": "backend-ledger",
+  "version": "1.0.0",
+  "description": "A robust, ACID-compliant banking ledger and transaction backend built with Node.js, Express 5, and MongoDB. This service handles user authentication, immutable ledger entries, Double-Entry bookkeeping, transactional integrity via MongoDB Sessions, and automated email notifications.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx nodemon src/server.js",
+    "dev:upi": "npx nodemon src/server.upi.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@21st-sdk/agent": "^0.0.16",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.4.1",
+    "nodemailer": "^8.0.5",
+    "zod": "^4.3.6"
+  }
+}

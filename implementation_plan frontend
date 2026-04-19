@@ -1,0 +1,317 @@
+# 🚀 UPI Banking System — Frontend Implementation Plan
+
+> **Goal:** Build a production-grade, mobile-first fintech frontend (Google Pay / PhonePe clone) for the existing Backend-Ledger API, using **Google Stitch for UI design** and **Next.js for production code**.
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> **Two-Track Approach:**
+> 1. **Track 1 — Stitch UI Design**: Generate premium mobile-first UI screens in Google Stitch for visual reference and rapid prototyping
+> 2. **Track 2 — Next.js Production Code**: Build the actual runnable frontend in `d:\java\Backend-Ledger\frontend\`
+>
+> Both tracks run in parallel. Stitch designs serve as the visual blueprint for the coded implementation.
+
+> [!WARNING]
+> **Backend is running on `localhost:3000`**. The frontend will run on `localhost:3001` (Next.js dev server). CORS configuration may need to be added to the Express backend.
+
+> [!CAUTION]
+> **Sensitive credentials** (JWT_SECRET, MongoDB URI) are in `.env`. The frontend will only use the JWT token from login responses — no backend secrets are exposed. The `.env` file contains real credentials that should NOT be committed to git.
+
+---
+
+## Backend API Surface (Mapped from Source Code)
+
+### Complete Endpoint Inventory
+
+| Route Group | Base Path | Endpoints | Auth |
+|---|---|---|---|
+| **Auth** | `/api/auth` | `POST /register`, `POST /login`, `POST /logout` | Public (register/login) |
+| **Accounts** | `/api/accounts` | `POST /`, `GET /`, `GET /balance/:accountId` | JWT |
+| **Transactions** | `/api/transactions` | `POST /`, `POST /system/initial-funds` | JWT / System |
+| **UPI Payments** | `/api/upi` | `POST /pay`, `POST /pay/merchant`, `POST /collect`, `POST /collect/:requestId/respond`, `GET /collect/pending`, `GET /transactions`, `POST /refund` | JWT + Rate Limit |
+| **UPI ID (VPA)** | `/api/upi-id` | `POST /`, `GET /`, `GET /resolve/:vpa`, `DELETE /:vpa`, `PUT /:vpa/default` | JWT |
+| **Bank Accounts** | `/api/bank-accounts` | `POST /link`, `GET /`, `POST /:id/verify`, `DELETE /:id`, `PUT /:id/primary`, `POST /:id/set-pin` | JWT |
+| **Notifications** | `/api/notifications` | `GET /`, `GET /unread-count`, `PUT /read` | JWT |
+| **Admin** | `/api/admin` | `GET /stats`, `GET /transactions`, `GET /fraud-alerts`, `PUT /fraud-alerts/:id/review`, `POST /users/:id/block`, `POST /users/:id/unblock`, `GET /audit-logs` | System User |
+
+---
+
+## Track 1: Google Stitch UI Design
+
+### 1.1 Create New Stitch Project
+- Title: **"PayFlow — UPI Banking App"**
+- Device Type: **MOBILE** (390px width — standard mobile viewport)
+
+### 1.2 Create Design System
+- **Color Palette**: Deep indigo primary (`#4F46E5`), emerald success (`#10B981`), warm amber (`#F59E0B`)
+- **Typography**: Inter (body/labels), Space Grotesk (headlines/amounts)
+- **Shape**: High roundness (16px cards, pill buttons)
+- **Appearance**: Dark mode primary, light mode secondary  
+- **Design Philosophy**: "The Digital Wallet" — premium, minimal, trust-first fintech aesthetic
+
+### 1.3 Generate Screens (7 screens, one-by-one)
+
+| # | Screen | Prompt Focus |
+|---|---|---|
+| 1 | **Login** | Email + password, fintech branding, "Continue" CTA |
+| 2 | **Register** | Name + email + password, terms acceptance |
+| 3 | **Dashboard** | Balance card, quick actions grid, recent transactions |
+| 4 | **Send Money** | VPA input, amount entry, PIN confirmation, success state |
+| 5 | **Request Money** | Collect request form, pending requests list |
+| 6 | **Transaction History** | Filterable list, status badges, date grouping |
+| 7 | **Profile** | User info, linked accounts, VPA management, settings |
+
+---
+
+## Track 2: Next.js Production Code
+
+### 2.1 Project Setup
+
+#### [NEW] `frontend/` directory inside `d:\java\Backend-Ledger\`
+
+Initialize with:
+```bash
+npx -y create-next-app@latest ./frontend --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-npm
+```
+
+### 2.2 Folder Structure
+
+```
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx          # Root layout (fonts, providers, theme)
+│   │   ├── page.tsx            # Redirect to /login or /dashboard
+│   │   ├── globals.css         # Tailwind + custom CSS
+│   │   ├── (auth)/
+│   │   │   ├── login/page.tsx
+│   │   │   └── register/page.tsx
+│   │   ├── (app)/
+│   │   │   ├── layout.tsx      # App shell (bottom nav, header)
+│   │   │   ├── dashboard/page.tsx
+│   │   │   ├── send/page.tsx
+│   │   │   ├── request/page.tsx
+│   │   │   ├── transactions/page.tsx
+│   │   │   └── profile/page.tsx
+│   │   └── not-found.tsx
+│   ├── components/
+│   │   ├── ui/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Input.tsx
+│   │   │   ├── Card.tsx
+│   │   │   ├── Modal.tsx
+│   │   │   ├── Loader.tsx
+│   │   │   ├── Toast.tsx
+│   │   │   ├── Badge.tsx
+│   │   │   └── BottomNav.tsx
+│   │   ├── dashboard/
+│   │   │   ├── BalanceCard.tsx
+│   │   │   ├── QuickActions.tsx
+│   │   │   └── RecentTransactions.tsx
+│   │   ├── transactions/
+│   │   │   ├── TransactionItem.tsx
+│   │   │   └── TransactionFilters.tsx
+│   │   └── profile/
+│   │       ├── LinkedAccounts.tsx
+│   │       └── VpaManager.tsx
+│   ├── lib/
+│   │   ├── api.ts              # Axios instance + JWT interceptor
+│   │   ├── utils.ts            # Formatters, validators
+│   │   └── constants.ts        # API base URL, status codes
+│   ├── services/
+│   │   ├── auth.service.ts
+│   │   ├── account.service.ts
+│   │   ├── transaction.service.ts
+│   │   ├── upi.service.ts
+│   │   ├── upiId.service.ts
+│   │   ├── bankAccount.service.ts
+│   │   └── notification.service.ts
+│   ├── stores/
+│   │   ├── useAuthStore.ts     # Zustand: user, token, login/logout
+│   │   ├── useAccountStore.ts  # Zustand: accounts, balance
+│   │   └── useNotificationStore.ts
+│   ├── hooks/
+│   │   ├── useAuth.ts
+│   │   └── useToast.ts
+│   └── types/
+│       ├── auth.types.ts
+│       ├── account.types.ts
+│       ├── transaction.types.ts
+│       └── upi.types.ts
+├── public/
+│   └── icons/                  # SVG icons
+├── next.config.js
+├── tailwind.config.ts
+├── tsconfig.json
+└── package.json
+```
+
+### 2.3 API Layer
+
+#### [NEW] `src/lib/api.ts`
+- Axios instance with `baseURL: http://localhost:3000/api`
+- Request interceptor: attach JWT token from Zustand store
+- Response interceptor: handle 401 → redirect to login, handle errors globally
+
+#### [NEW] `src/services/*.service.ts` (7 files)
+Each service maps 1:1 to the backend route groups. Example:
+
+```typescript
+// upi.service.ts
+export const upiService = {
+  payP2P: (data: PayP2PRequest) => api.post('/upi/pay', data),
+  payMerchant: (data: PayMerchantRequest) => api.post('/upi/pay/merchant', data),
+  createCollect: (data: CollectRequest) => api.post('/upi/collect', data),
+  respondToCollect: (id: string, data: CollectResponse) => api.post(`/upi/collect/${id}/respond`, data),
+  getPendingCollects: () => api.get('/upi/collect/pending'),
+  getTransactionHistory: (params: TransactionQuery) => api.get('/upi/transactions', { params }),
+  refundTransaction: (data: RefundRequest) => api.post('/upi/refund', data),
+};
+```
+
+### 2.4 State Management (Zustand)
+
+| Store | State | Actions |
+|---|---|---|
+| `useAuthStore` | `user`, `token`, `isAuthenticated` | `login()`, `register()`, `logout()`, `hydrate()` |
+| `useAccountStore` | `accounts`, `balance`, `activeAccountId` | `fetchAccounts()`, `fetchBalance()`, `createAccount()` |
+| `useNotificationStore` | `notifications`, `unreadCount` | `fetch()`, `markRead()` |
+
+### 2.5 Page Implementations
+
+#### Login & Register (`/login`, `/register`)
+- Email + password form with Zod validation
+- JWT token stored in Zustand (persisted to localStorage)
+- Redirect to `/dashboard` on success
+- Error toast on failure
+
+#### Dashboard (`/dashboard`)
+- **BalanceCard**: Large balance display with account selector
+- **QuickActions**: Send Money, Request Money, Scan QR (4-grid layout)
+- **RecentTransactions**: Last 5 transactions with "View All" link
+- Skeleton loading states
+- Pull-to-refresh pattern
+
+#### Send Money (`/send`)
+- Step 1: Enter receiver VPA → resolve to display name (`GET /api/upi-id/resolve/:vpa`)
+- Step 2: Enter amount with numeric display
+- Step 3: Enter UPI PIN → confirm
+- Step 4: Success / failure animation
+- Idempotency key generated client-side (`crypto.randomUUID()`)
+
+#### Request Money (`/request`)
+- Enter payer VPA + amount + optional note
+- Calls `POST /api/upi/collect`
+- Pending collect requests list (`GET /api/upi/collect/pending`)
+- Approve/decline flow for incoming requests
+
+#### Transaction History (`/transactions`)
+- Paginated list from `GET /api/upi/transactions`
+- Filter tabs: All | Sent | Received | Failed
+- Date grouping (Today, Yesterday, This Week, etc.)
+- Status badges with colors (green=COMPLETED, red=FAILED, yellow=PENDING)
+
+#### Profile (`/profile`)
+- User info card (name, email)
+- VPA management (list, create, set default, deactivate)
+- Linked bank accounts (list, link, verify, set primary)
+- Dark/Light mode toggle
+- Logout button
+
+### 2.6 Design System (Tailwind)
+
+```css
+/* Premium Fintech Color Palette */
+--primary: #4F46E5;        /* Indigo — trust, authority */
+--primary-light: #818CF8;
+--secondary: #10B981;       /* Emerald — success, money */
+--accent: #F59E0B;          /* Amber — attention, pending */
+--danger: #EF4444;          /* Red — errors, failed */
+--surface-dark: #0F172A;    /* Slate-900 — dark mode bg */
+--surface-light: #F8FAFC;   /* Slate-50 — light mode bg */
+--card-dark: #1E293B;       /* Slate-800 — dark cards */
+--card-light: #FFFFFF;      /* White — light cards */
+```
+
+### 2.7 Key UX Patterns
+- **Loading**: Skeleton shimmer animations (not spinners)
+- **Empty states**: Illustrated empty states with CTAs
+- **Errors**: Toast notifications (top-right) with auto-dismiss
+- **Success**: Lottie-style checkmark animation after payment
+- **Transitions**: Page transitions with Framer Motion
+- **Dark mode**: System preference detection + manual toggle
+- **Mobile-first**: Bottom navigation bar, gesture-friendly touch targets
+
+---
+
+## Proposed Changes
+
+### Track 1: Stitch UI Design
+
+#### [NEW] Stitch Project: "PayFlow — UPI Banking App"
+- Create project with MOBILE device type
+- Create premium fintech design system
+- Generate 7 mobile screens
+
+---
+
+### Track 2: Next.js Frontend
+
+#### [NEW] `frontend/` — Next.js App
+- Initialize project with TypeScript + Tailwind + App Router
+- Install dependencies: `zustand`, `axios`, `framer-motion`, `lucide-react`, `zod`
+
+#### [NEW] `frontend/src/lib/api.ts`
+- Axios instance with JWT interceptor
+
+#### [NEW] `frontend/src/services/` — 7 service files
+- Complete API layer mapping to all backend endpoints
+
+#### [NEW] `frontend/src/stores/` — 3 Zustand stores
+- Auth, Account, Notification state management
+
+#### [NEW] `frontend/src/components/ui/` — 8 reusable components
+- Button, Input, Card, Modal, Loader, Toast, Badge, BottomNav
+
+#### [NEW] `frontend/src/app/(auth)/` — Auth pages
+- Login and Register with form validation
+
+#### [NEW] `frontend/src/app/(app)/` — App pages
+- Dashboard, Send, Request, Transactions, Profile
+
+#### [NEW] `frontend/src/types/` — TypeScript types
+- Complete type definitions for all API contracts
+
+---
+
+## Open Questions
+
+> [!IMPORTANT]
+> 1. **CORS**: Your Express backend doesn't appear to have CORS configured. Should I add `cors` middleware to `app.upi.js` to allow `localhost:3001` requests?
+
+> [!IMPORTANT]
+> 2. **Tailwind CSS version**: You mentioned Tailwind CSS. Should I use **Tailwind v4** (latest, CSS-first config) or **Tailwind v3** (stable, JS config)?
+
+> [!WARNING]
+> 3. **Admin Panel**: Your backend has a full admin panel (`/api/admin`). Should I include admin dashboard screens in this frontend, or is that a separate app? The current prompt focuses on consumer-facing screens only.
+
+---
+
+## Verification Plan
+
+### Automated Tests
+- `npm run build` — ensure TypeScript compilation succeeds
+- `npm run lint` — zero ESLint errors
+- Test all pages render in browser at `localhost:3001`
+
+### Manual Verification
+- Open each page in browser (mobile viewport: 390px)
+- Verify API calls to `localhost:3000` succeed
+- Test full user flow: Register → Login → Dashboard → Send Money → View Transactions → Logout
+- Test dark/light mode toggle
+- Test error states (wrong password, insufficient balance, network error)
+
+### Browser Recording
+- Record full user flow walkthrough as WebP video
