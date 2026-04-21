@@ -10,7 +10,7 @@ import Link from 'next/link';
 import {
   SendHorizontal, ArrowDownLeft, QrCode, Bell,
   Sun, Moon, TrendingUp, TrendingDown, RefreshCw,
-  ChevronRight, Zap,
+  ChevronRight, Zap, ShieldAlert
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAccountStore } from '@/stores/useAccountStore';
@@ -74,6 +74,7 @@ export default function DashboardPage() {
     { icon: ArrowDownLeft, label: 'Request', href: '/request', color: 'text-success-600', bg: 'bg-success-500/10' },
     { icon: QrCode, label: 'Scan QR', href: '/scan', color: 'text-warning-600', bg: 'bg-warning-500/10' },
     { icon: TrendingUp, label: 'History', href: '/transactions', color: 'text-purple-500', bg: 'bg-purple-500/10' },
+    { icon: ShieldAlert, label: 'Security', href: '/fraud-dashboard', color: 'text-red-500', bg: 'bg-red-500/10' },
   ];
 
   return (
@@ -171,7 +172,7 @@ export default function DashboardPage() {
           <h3 className="text-sm font-bold text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-3">
             Quick Actions
           </h3>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-5 gap-3">
             {quickActions.map((action) => (
               <Link
                 key={action.href}

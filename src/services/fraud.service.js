@@ -116,6 +116,38 @@ async function assessRisk(userId, fromAccountId, amount, metadata = {}) {
         console.error("Fraud rule DAILY_AMOUNT failed:", err.message);
     }
 
+    // ─── RULE 7: AI/ML FRAUD DETECTION (Python API) ───
+    try {
+        const mlResponse = await fetch("http://127.0.0.1:8000/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                amount: amount,
+                transaction_time: new Date().getHours(),
+                location: 1, // Base feature for now
+                device_change: 0, // Placeholder
+                transaction_frequency: triggers.length > 0 ? 5 : 1, 
+                avg_user_spending: 1000.0, 
+                last_transaction_gap: 5.0
+            })
+        });
+        
+        if (mlResponse.ok) {
+            const mlData = await mlResponse.json();
+            if (mlData.fraud === 1 || mlData.risk_score > 0.4) {
+                const mlRisk = Math.round(mlData.risk_score * 100);
+                triggers.push({
+                    rule: "AI_ML_FRAUD_MODEL",
+                    description: `ML model detected anomaly: ${mlData.reason}`,
+                    scoreContribution: mlRisk
+                });
+                totalScore += mlRisk;
+            }
+        }
+    } catch (err) {
+        console.error("Fraud rule AI_ML failed (Is Python service running?):", err.message);
+    }
+
     // Cap score at 100
     totalScore = Math.min(totalScore, 100);
 

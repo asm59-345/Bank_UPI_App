@@ -129,6 +129,14 @@ app.use("/api/bank-accounts", generalLimiter, bankAccountRoutes);
  */
 app.use("/api/admin", generalLimiter, adminRoutes);
 
+/**
+ * Developer Payment Gateway API (Student Program)
+ * Handles: Pay links, verify, API keys
+ * Base path: /v1
+ */
+const gatewayRoutes = require("./routes/gateway.routes");
+app.use("/v1", generalLimiter, gatewayRoutes);
+
 // ═══════════════════════════════════════════════════════
 //  NOTIFICATION ROUTES (inline — lightweight endpoints)
 //  NOTE: More specific paths MUST be registered BEFORE
