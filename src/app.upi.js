@@ -137,6 +137,13 @@ app.use("/api/admin", generalLimiter, adminRoutes);
 const gatewayRoutes = require("./routes/gateway.routes");
 app.use("/v1", generalLimiter, gatewayRoutes);
 
+/**
+ * AI Features API
+ * Handles: Chatbot, Financial Advice, Smart Routing
+ */
+const aiRoutes = require("./routes/ai.routes");
+app.use("/api/ai", generalLimiter, aiRoutes);
+
 // ═══════════════════════════════════════════════════════
 //  NOTIFICATION ROUTES (inline — lightweight endpoints)
 //  NOTE: More specific paths MUST be registered BEFORE
