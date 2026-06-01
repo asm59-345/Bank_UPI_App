@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Bot, Lightbulb, TrendingDown, RefreshCcw, Wallet } from 'lucide-react';
+import { aiService } from '@/services/ai.service';
 
 export default function AIInsightsPage() {
   const [advice, setAdvice] = useState<any>(null);
@@ -17,22 +18,8 @@ export default function AIInsightsPage() {
   const fetchAdvice = async () => {
     try {
       setLoading(true);
-      // Calls the /api/ai/advice endpoint on port 8000 (wait, or what port is backend? usually 8000 or 5000)
-      // I'll simulate it right here for the UI sake if they don't have api configured. 
-      const res = await fetch('http://localhost:5000/api/ai/advice', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-      });
-      if (res.ok) {
-        const result = await res.json();
-        setAdvice(result.data);
-      } else {
-        // Mock data fallback
-        setAdvice({
-            current_spending: 5430,
-            predicted_expenses: 12500,
-            advice: "Your spending on dining out is 30% higher this week. Consider cooking at home to stay on budget!"
-        });
-      }
+      const data = await aiService.getAdvice();
+      setAdvice(data);
     } catch {
         setAdvice({
             current_spending: 5430,
@@ -50,20 +37,8 @@ export default function AIInsightsPage() {
     const uiInput = chatInput;
     setChatInput('');
     try {
-      const res = await fetch('http://localhost:5000/api/ai/chat', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ message: uiInput })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setChatLog(prev => [...prev, {sender: 'ai', text: data.answer}]);
-      } else {
-        setChatLog(prev => [...prev, {sender: 'ai', text: "I can help you with spending analysis. Ask me anything!"}]);
-      }
+      const data = await aiService.sendChat(uiInput);
+      setChatLog(prev => [...prev, {sender: 'ai', text: data.answer}]);
     } catch {
        setChatLog(prev => [...prev, {sender: 'ai', text: "System is offline right now, but your budget is close to its limit."}]);
     }

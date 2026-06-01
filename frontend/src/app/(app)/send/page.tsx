@@ -298,12 +298,17 @@ function SendMoneyContent() {
               <p className="text-surface-500 mt-1">₹{parseFloat(amount).toLocaleString('en-IN')} sent to {receiver.displayName}</p>
             </div>
             <div className="bg-white dark:bg-surface-900 rounded-2xl p-5 w-full space-y-3">
-              {[['Recipient', receiver.displayName], ['UPI ID', receiver.vpa], ['Amount', `₹${parseFloat(amount).toLocaleString('en-IN')}`], note ? ['Note', note] : null].filter(Boolean).map(([k, v]) => (
+              {([
+                ['Recipient', receiver.displayName],
+                ['UPI ID', receiver.vpa],
+                ['Amount', `₹${parseFloat(amount).toLocaleString('en-IN')}`],
+                note ? ['Note', note] : null
+              ].filter((item): item is [string, string] => item !== null).map(([k, v]) => (
                 <div key={k} className="flex justify-between text-sm">
                   <span className="text-surface-400">{k}</span>
                   <span className={`font-semibold ${k === 'Amount' ? 'text-success-600' : 'text-surface-800 dark:text-white'}`}>{v}</span>
                 </div>
-              ))}
+              )))}
             </div>
             <div className="w-full space-y-3">
               <Button fullWidth size="lg" onClick={() => router.push('/dashboard')} id="send-success-home">Back to Home</Button>

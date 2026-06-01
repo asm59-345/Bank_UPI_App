@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/useToast';
 import { useTheme } from '@/components/ThemeProvider';
 import { StatusBadge } from '@/components/ui/Badge';
 import { BalanceSkeleton, TransactionListSkeleton } from '@/components/ui/Loader';
+import { QrCodeModal } from '@/components/ui/QrCodeModal';
 import { formatAmount, formatRelativeDate, formatTime } from '@/lib/utils';
 import type { Transaction } from '@/types/transaction.types';
 
@@ -34,6 +35,20 @@ export default function DashboardPage() {
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  // QR Modal State
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [defaultVpa, setDefaultVpa] = useState<string>('');
+
+  const loadVpas = useCallback(async () => {
+    try {
+      const data = await upiService.listUpiIds();
+      const defaultId = data.find(v => v.isDefault)?.vpa || data[0]?.vpa || '';
+      setDefaultVpa(defaultId);
+    } catch {
+      setDefaultVpa('');
+    }
+  }, []);
+
   const loadTransactions = useCallback(async () => {
     try {
       const data = await upiService.getTransactionHistory({ limit: 5 });
@@ -47,7 +62,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadTransactions();
-  }, [loadTransactions]);
+    loadVpas();
+  }, [loadTransactions, loadVpas]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -95,12 +111,29 @@ export default function DashboardPage() {
             onClick={toggleTheme}
             className="p-2.5 rounded-xl bg-surface-100 dark:bg-surface-800 text-surface-500 hover:text-surface-700 dark:hover:text-surface-300 transition-colors"
             id="theme-toggle"
+            title="Toggle theme"
           >
             {resolvedTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
           <button
+            onClick={() => {
+              if (!defaultVpa) {
+                addToast('Link a bank account and create a UPI ID first!', 'error');
+                router.push('/profile');
+              } else {
+                setShowQrModal(true);
+              }
+            }}
+            className="p-2.5 rounded-xl bg-surface-100 dark:bg-surface-800 text-surface-500 hover:text-surface-700 dark:hover:text-surface-300 transition-colors"
+            id="my-qr-btn"
+            title="My QR Code"
+          >
+            <QrCode className="w-4 h-4" />
+          </button>
+          <button
             className="p-2.5 rounded-xl bg-surface-100 dark:bg-surface-800 text-surface-500 hover:text-surface-700 dark:hover:text-surface-300 transition-colors relative"
             id="notifications-btn"
+            title="Notifications"
           >
             <Bell className="w-4 h-4" />
             <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-danger-500 rounded-full" />
@@ -230,6 +263,15 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      
+      {defaultVpa && (
+        <QrCodeModal
+          isOpen={showQrModal}
+          onClose={() => setShowQrModal(false)}
+          vpa={defaultVpa}
+          name={user?.name || 'PayFlow User'}
+        />
+      )}
     </div>
   );
 }

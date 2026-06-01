@@ -8,7 +8,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   LogOut, User, CreditCard, Zap, Shield, Sun, Moon,
-  Plus, Check, Trash2, Star, ChevronRight, ArrowLeft,
+  Plus, Check, Trash2, Star, ChevronRight, ArrowLeft, QrCode
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -18,6 +18,7 @@ import { useAccountStore } from '@/stores/useAccountStore';
 import { upiService } from '@/services/upi.service';
 import { useToast } from '@/hooks/useToast';
 import { useTheme } from '@/components/ThemeProvider';
+import { QrCodeModal } from '@/components/ui/QrCodeModal';
 import type { UpiId, BankAccount } from '@/types/transaction.types';
 
 export default function ProfilePage() {
@@ -36,6 +37,7 @@ export default function ProfilePage() {
   const [showCreateVpa, setShowCreateVpa] = useState(false);
   const [showLinkBank, setShowLinkBank] = useState(false);
   const [showSetPin, setShowSetPin] = useState(false);
+  const [showQrCodeModal, setShowQrCodeModal] = useState(false);
   const [selectedBankId, setSelectedBankId] = useState('');
 
   // Form states
@@ -316,6 +318,34 @@ export default function ProfilePage() {
           </div>
           <div className="divide-y divide-surface-50 dark:divide-surface-800/50">
             <button
+              onClick={() => {
+                if (vpas.length === 0) {
+                  addToast('Please create a UPI ID first!', 'error');
+                } else {
+                  setShowQrCodeModal(true);
+                }
+              }}
+              className="flex items-center gap-3 w-full px-4 py-3.5 hover:bg-surface-50 dark:hover:bg-surface-800/50 transition-colors"
+              id="profile-qr-btn"
+            >
+              <QrCode className="w-4 h-4 text-primary-500" />
+              <span className="flex-1 text-sm font-semibold text-surface-800 dark:text-surface-200 text-left">
+                My QR Code
+              </span>
+              <ChevronRight className="w-4 h-4 text-surface-400" />
+            </button>
+            <button
+              onClick={() => router.push('/developer')}
+              className="flex items-center gap-3 w-full px-4 py-3.5 hover:bg-surface-50 dark:hover:bg-surface-800/50 transition-colors"
+              id="profile-developer-btn"
+            >
+              <Zap className="w-4 h-4 text-indigo-500" />
+              <span className="flex-1 text-sm font-semibold text-surface-800 dark:text-surface-200 text-left">
+                Developer Portal
+              </span>
+              <ChevronRight className="w-4 h-4 text-surface-400" />
+            </button>
+            <button
               onClick={toggleTheme}
               className="flex items-center gap-3 w-full px-4 py-3.5 hover:bg-surface-50 dark:hover:bg-surface-800/50 transition-colors"
               id="profile-theme-toggle"
@@ -415,6 +445,16 @@ export default function ProfilePage() {
           </Button>
         </div>
       </Modal>
+
+      {/* ── QR Code Modal ── */}
+      {vpas.length > 0 && (
+        <QrCodeModal
+          isOpen={showQrCodeModal}
+          onClose={() => setShowQrCodeModal(false)}
+          vpa={vpas.find(v => v.isDefault)?.vpa || vpas[0]?.vpa || ''}
+          name={user?.name || 'PayFlow User'}
+        />
+      )}
     </div>
   );
 }

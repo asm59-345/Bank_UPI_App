@@ -42,9 +42,9 @@ export function Input({
           type={isPassword && showPassword ? 'text' : type}
           className={cn(
             'input-field',
-            icon && 'pl-12',
-            isPassword && 'pr-12',
-            error && 'ring-2 ring-danger-500/30',
+            icon ? 'pl-12' : '',
+            isPassword ? 'pr-12' : '',
+            error ? 'ring-2 ring-danger-500/30' : '',
             className,
           )}
           {...props}

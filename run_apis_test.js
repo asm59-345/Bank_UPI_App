@@ -12,11 +12,11 @@ async function runTests() {
   console.log("Connecting to Database...");
   await connectToDB();
 
-  console.log("Starting local test server on port 3001...");
-  const server = app.listen(3001);
+  console.log("Starting local test server on port 3002...");
+  const server = app.listen(3002);
 
   try {
-    const baseUrl = "http://localhost:3001/api";
+    const baseUrl = "http://localhost:3002/api";
 
     // Helper for making API calls
     const makeRequest = async (method, endpoint, body = null, token = null) => {
